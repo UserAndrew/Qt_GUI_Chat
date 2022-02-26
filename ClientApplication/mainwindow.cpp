@@ -41,7 +41,7 @@ void MainWindow::slotReadyRead()
     if(in.status() == QDataStream::Ok)
     {
         QString str;
-        in << str;
+        in >> str;
         ui->textBrowser->append(str);
     }
     else
