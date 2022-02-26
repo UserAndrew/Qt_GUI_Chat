@@ -19,7 +19,7 @@ private:
     void sendToClient(QString str);
 
 public slots:
-    void incomigConnection(qintptr socketDescriptor);
+    void incomingConnection(qintptr socketDescriptor) override;
     void slotReadyRead();
 };
 

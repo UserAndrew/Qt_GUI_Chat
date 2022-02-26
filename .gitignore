@@ -1,6 +1,6 @@
 build-ServerApplication-Desktop-Debug/
 build-ClientApplication-Desktop-Debug/
 
-*.pro
+#*.pro
 *.pro.user
 *.ui

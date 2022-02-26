@@ -12,8 +12,9 @@ Server::Server()
     }
 }
 
-void Server::incomigConnection(qintptr socketDescriptor)
+void Server::incomingConnection(qintptr socketDescriptor)
 {
+    qDebug() << socketDescriptor << " Connecting... ";
     socket = new QTcpSocket;
     socket->setSocketDescriptor(socketDescriptor);
     connect(socket, &QTcpSocket::readyRead, this, &Server::slotReadyRead);
