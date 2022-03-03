@@ -3,11 +3,20 @@
 
 #include <QMainWindow>
 #include <QTcpSocket>
+#include "startdialog.h"
+
 //#include <QMessageBox>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
+
+struct Client
+{
+    std::string login;
+    std::string password;
+    std::string name;
+};
 
 class MainWindow : public QMainWindow
 {
@@ -18,8 +27,6 @@ public:
     ~MainWindow();
 
 private slots:
-    void on_pushButton_clicked();
-
     void on_pushButton_2_clicked();
 
     void on_lineEdit_returnPressed();
@@ -28,7 +35,9 @@ private:
     Ui::MainWindow *ui;
     QTcpSocket *socket;
     QByteArray Data;
+    StartDialog ui_start_dialog;
     void sendToServer(QString str);
+    qint16 nextBlockSize;
 
 public slots:
     void slotReadyRead();

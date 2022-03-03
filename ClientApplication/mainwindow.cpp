@@ -5,11 +5,13 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    ui->setupUi(ui_start_dialog);
     ui->setupUi(this);
     socket = new QTcpSocket(this);
+    socket->connectToHost("127.0.0.1", 2000);
     connect(socket, &QTcpSocket::readyRead, this, &MainWindow::slotReadyRead);
     connect(socket, &QTcpSocket::disconnected, socket, &QTcpSocket::deleteLater);
-
+    nextBlockSize = 0;
 }
 
 MainWindow::~MainWindow()
@@ -17,19 +19,14 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-
-void MainWindow::on_pushButton_clicked()
-{
-
-    socket->connectToHost("127.0.0.1", 2000);
-}
-
 void MainWindow::sendToServer(QString str)
 {
     Data.clear();
     QDataStream out(&Data, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_9);
-    out << str;
+    out << qint16(0) << str;
+    out.device()->seek(0);
+    out << qint16(Data.size() - sizeof(qint16));
     socket->write(Data);
     ui->lineEdit->clear();
 }
@@ -40,9 +37,28 @@ void MainWindow::slotReadyRead()
     in.setVersion(QDataStream::Qt_5_9);
     if(in.status() == QDataStream::Ok)
     {
-        QString str;
+        /*QString str;
         in >> str;
-        ui->textBrowser->append(str);
+        ui->textBrowser->append(str);*/
+        for(;;)
+        {
+            if(nextBlockSize == 0)
+            {
+                if(socket->bytesAvailable() < 2)
+                {
+                    break;
+                }
+                in >> nextBlockSize;
+            }
+            if(socket->bytesAvailable() < nextBlockSize)
+            {
+                break;
+            }
+            QString str;
+            in >> str;
+            nextBlockSize = 0;
+            ui->textBrowser->append(str);
+        }
     }
     else
     {
