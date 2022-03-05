@@ -5,7 +5,6 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
-    ui->setupUi(ui_start_dialog);
     ui->setupUi(this);
     socket = new QTcpSocket(this);
     socket->connectToHost("127.0.0.1", 2000);

@@ -3,7 +3,9 @@
 
 #include <QMainWindow>
 #include <QTcpSocket>
-#include "startdialog.h"
+#include <QString>
+#include "auth_window.h"
+#include "reg_window.h"
 
 //#include <QMessageBox>
 
@@ -35,7 +37,7 @@ private:
     Ui::MainWindow *ui;
     QTcpSocket *socket;
     QByteArray Data;
-    StartDialog ui_start_dialog;
+    //StartDialog ui_start_dialog;
     void sendToServer(QString str);
     qint16 nextBlockSize;
 
