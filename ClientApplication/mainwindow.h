@@ -27,21 +27,32 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void display();
 
 private slots:
     void on_pushButton_2_clicked();
-
     void on_lineEdit_returnPressed();
+    void authorizeUser();
+    void registerWindowShow();
+    void registerUser();
 
 private:
     Ui::MainWindow *ui;
     QTcpSocket *socket;
     QByteArray Data;
-    //StartDialog ui_start_dialog;
+
     void sendToServer(QString str);
     qint16 nextBlockSize;
+    auth_window ui_Auth;
+    reg_window ui_Reg;
+
+    QString m_username;
+    QString m_userpass;
+
+    bool m_loginSuccesfull;
 
 public slots:
     void slotReadyRead();
+
 };
 #endif // MAINWINDOW_H

@@ -15,20 +15,36 @@ reg_window::~reg_window()
 
 void reg_window::on_lineEdit_Name_textEdited(const QString &arg1)
 {
-
+    reg_window::m_username = arg1;
 }
 
 void reg_window::on_lineEdit_Password_2_textEdited(const QString &arg1)
 {
-
+    reg_window::m_userpass = arg1;
 }
 
 void reg_window::on_lineEdit_Confirm_3_textEdited(const QString &arg1)
 {
-
+    reg_window::m_confirmation = arg1;
 }
 
 void reg_window::on_pushButtonRegister_clicked()
 {
+    emit register_button_clicked2();
+}
 
+QString reg_window::getName()
+{
+    return m_username;
+}
+
+QString reg_window::getPass()
+{
+    return m_userpass;
+}
+
+
+bool reg_window::checkPass()
+{
+    return (m_confirmation == m_userpass);
 }

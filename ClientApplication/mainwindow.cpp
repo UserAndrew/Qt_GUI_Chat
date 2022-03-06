@@ -1,10 +1,25 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "auth_window.h"
+#include "reg_window.h"
+#include <QtDebug>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    m_loginSuccesfull = false;
+    connect(&ui_Auth, SIGNAL(login_button_clicked()),
+            this, SLOT(authorizeUser()));
+    connect(&ui_Auth, SIGNAL(destroyed()),
+            this, SLOT(show()));
+    connect(&ui_Auth, SIGNAL(register_button_clicked()),
+            this, SLOT(registerWindowShow()));
+    connect(&ui_Reg, SIGNAL(register_button_clicked2()),
+            this, SLOT(registerUser()));
+    connect(&ui_Reg, SIGNAL(destroyed()),
+            &ui_Auth, SLOT(show()));
+
     ui->setupUi(this);
     socket = new QTcpSocket(this);
     socket->connectToHost("127.0.0.1", 2000);
@@ -16,6 +31,29 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::registerWindowShow()
+{
+    ui_Auth.hide();
+    ui_Reg.show();
+}
+
+void MainWindow::authorizeUser()
+{
+    m_username = ui_Auth.getLogin();
+    m_userpass = ui_Auth.getPass();
+}
+
+void MainWindow::registerUser()
+{
+    m_username = ui_Reg.getName();
+    m_userpass = ui_Reg.getPass();
+}
+
+void MainWindow::display()
+{
+    ui_Auth.show();
 }
 
 void MainWindow::sendToServer(QString str)
