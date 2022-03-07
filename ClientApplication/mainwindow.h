@@ -48,6 +48,7 @@ private:
 
     QString m_username;
     QString m_userpass;
+    QString m_userlogin;
 
     bool m_loginSuccesfull;
 

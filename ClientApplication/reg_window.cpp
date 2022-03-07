@@ -18,6 +18,11 @@ void reg_window::on_lineEdit_Name_textEdited(const QString &arg1)
     reg_window::m_username = arg1;
 }
 
+void reg_window::on_lineEdit_Login_textEdited(const QString &arg1)
+{
+    reg_window::m_userlogin = arg1;
+}
+
 void reg_window::on_lineEdit_Password_2_textEdited(const QString &arg1)
 {
     reg_window::m_userpass = arg1;
@@ -38,11 +43,15 @@ QString reg_window::getName()
     return m_username;
 }
 
+QString reg_window::getLogin()
+{
+    return m_userlogin;
+}
+
 QString reg_window::getPass()
 {
     return m_userpass;
 }
-
 
 bool reg_window::checkPass()
 {

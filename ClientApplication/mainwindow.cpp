@@ -4,10 +4,25 @@
 #include "reg_window.h"
 #include <QtDebug>
 
+QString getSeparator()
+{
+    return "|";
+}
+
+struct FlagsForServer
+{
+    const QString create = "create";
+    const QString login = "login";
+    const QString message = "message";
+} serverFlags;
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    ui->setupUi(this);
+    socket = new QTcpSocket(this);
+    socket->connectToHost("127.0.0.1", 2000);
     m_loginSuccesfull = false;
     connect(&ui_Auth, SIGNAL(login_button_clicked()),
             this, SLOT(authorizeUser()));
@@ -20,9 +35,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&ui_Reg, SIGNAL(destroyed()),
             &ui_Auth, SLOT(show()));
 
-    ui->setupUi(this);
+    /*ui->setupUi(this);
     socket = new QTcpSocket(this);
-    socket->connectToHost("127.0.0.1", 2000);
+    socket->connectToHost("127.0.0.1", 2000);*/
     connect(socket, &QTcpSocket::readyRead, this, &MainWindow::slotReadyRead);
     connect(socket, &QTcpSocket::disconnected, socket, &QTcpSocket::deleteLater);
     nextBlockSize = 0;
@@ -43,12 +58,19 @@ void MainWindow::authorizeUser()
 {
     m_username = ui_Auth.getLogin();
     m_userpass = ui_Auth.getPass();
+    QString auth_string = serverFlags.login+getSeparator()+
+            m_username+getSeparator()+m_userpass;
+    sendToServer(auth_string);
 }
 
 void MainWindow::registerUser()
 {
     m_username = ui_Reg.getName();
+    m_userlogin = ui_Reg.getLogin();
     m_userpass = ui_Reg.getPass();
+    QString reg_string = serverFlags.create+getSeparator()+
+            m_username+getSeparator()+m_userlogin+getSeparator()+m_userpass;
+    sendToServer(reg_string);
 }
 
 void MainWindow::display()
