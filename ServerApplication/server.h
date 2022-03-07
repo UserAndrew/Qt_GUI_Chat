@@ -5,6 +5,14 @@
 #include <QTcpSocket>
 #include <QDataStream>
 #include <QVector>
+#include <QMap>
+
+struct FlagsFromClient
+{
+    const QString create = "create";
+    const QString login = "login";
+    const QString message = "message";
+}client_flags;
 
 class Server : public QTcpServer
 {
@@ -18,6 +26,10 @@ private:
     QByteArray Data;
     void sendToClient(QString str);
     qint16 nextBlockSize;
+    QMap<QString, QString> messageForUser;
+    QMap<QString, QMap<QString, QString>> user_data;
+    void messageFromClientProcessing(QString str);
+
 
 public slots:
     void incomingConnection(qintptr socketDescriptor) override;

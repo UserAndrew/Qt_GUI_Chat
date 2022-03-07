@@ -60,7 +60,8 @@ void Server::slotReadyRead()
             in >> str;
             qDebug() << str;
             nextBlockSize = 0;
-            sendToClient(str);
+            messageFromClientProcessing(str);
+            //sendToClient(str);
             break;
         }
     }
@@ -82,5 +83,21 @@ void Server::sendToClient(QString str)
     for(int i = 0; i < Sockets.size(); i++)
     {
         Sockets[i]->write(Data);
+    }
+}
+
+void Server::messageFromClientProcessing(QString str)
+{
+    QStringList list = str.split("|");
+    if(list[0] == client_flags.create)
+    {
+
+    }
+    else if(list[0] == client_flags.login)
+    {
+
+    }else if(list[0] == client_flags.message)
+    {
+
     }
 }
