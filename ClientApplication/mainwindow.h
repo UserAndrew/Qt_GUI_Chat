@@ -4,8 +4,8 @@
 #include <QMainWindow>
 #include <QTcpSocket>
 #include <QString>
-#include "auth_window.h"
-#include "reg_window.h"
+
+#include "dialog.h"
 
 //#include <QMessageBox>
 
@@ -41,10 +41,10 @@ private:
     QTcpSocket *socket;
     QByteArray Data;
 
+    Dialog* dg;
+
     void sendToServer(QString str);
     qint16 nextBlockSize;
-    auth_window ui_Auth;
-    reg_window ui_Reg;
 
     QString m_username;
     QString m_userpass;
