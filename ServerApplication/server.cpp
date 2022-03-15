@@ -1,5 +1,12 @@
 #include "server.h"
 
+struct FlagsFromClient
+{
+    const QString create{"create"};
+    const QString login{"login"};
+    const QString message{"message"};
+} client_flags;
+
 Server::Server()
 {
     if(this->listen(QHostAddress::Any, 2000))
@@ -88,15 +95,22 @@ void Server::sendToClient(QString str)
 
 void Server::messageFromClientProcessing(QString str)
 {
+    Client data_client;
     QStringList list = str.split("|");
     if(list[0] == client_flags.create)
     {
-
+        if(!user_data.count(list[1]))
+        {
+            data_client.name = list[2];
+            data_client.password = list[3];
+            user_data[list[1]] = data_client;
+        }
     }
     else if(list[0] == client_flags.login)
     {
 
-    }else if(list[0] == client_flags.message)
+    }
+    else if(list[0] == client_flags.message)
     {
 
     }

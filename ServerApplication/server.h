@@ -7,12 +7,12 @@
 #include <QVector>
 #include <QMap>
 
-struct FlagsFromClient
+struct Client
 {
-    const QString create = "create";
-    const QString login = "login";
-    const QString message = "message";
-}client_flags;
+    //QString login;
+    QString password;
+    QString name;
+};
 
 class Server : public QTcpServer
 {
@@ -26,8 +26,8 @@ private:
     QByteArray Data;
     void sendToClient(QString str);
     qint16 nextBlockSize;
-    QMap<QString, QString> messageForUser;
-    QMap<QString, QMap<QString, QString>> user_data;
+    QMap<QString, QString> message_for_user;
+    QMap<QString, Client> user_data;
     void messageFromClientProcessing(QString str);
 
 
