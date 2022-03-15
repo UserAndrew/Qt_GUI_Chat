@@ -1,5 +1,12 @@
 #include "server.h"
 
+struct AnswerToClient
+{
+    const QString login_exist{"This login already exist"};
+    const QString incorrect_login{"Incorrect login"};
+    const QString incorrect_pass{"Incorrect password"};
+};
+
 struct FlagsFromClient
 {
     const QString create{"create"};
