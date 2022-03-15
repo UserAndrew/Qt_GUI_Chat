@@ -5,11 +5,11 @@
 #include <QTcpSocket>
 #include <QDataStream>
 #include <QVector>
+#include <QFile>
 #include <QMap>
 
 struct Client
 {
-    //QString login;
     QString password;
     QString name;
 };
@@ -19,6 +19,7 @@ class Server : public QTcpServer
     Q_OBJECT
 public:
     Server();
+    ~Server();
     QTcpSocket* socket;
 
 private:
