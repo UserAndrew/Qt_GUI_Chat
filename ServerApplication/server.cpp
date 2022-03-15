@@ -49,13 +49,17 @@ Server::~Server()
     if(file.open(QIODevice::WriteOnly))
     {
         QTextStream out(&file);
-
         for(it = user_data.begin(); it != user_data.end(); it++)
         {
-            out<<it->first<<"\t";
-
+            out<<it.key()<<"\t"<<it.value().name<<"\t"<<it.value().password<<endl;
         }
     }
+    else
+    {
+        qWarning("Could not open file");
+    }
+
+    file.close();
 }
 
 void Server::incomingConnection(qintptr socketDescriptor)
