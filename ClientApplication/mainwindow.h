@@ -7,18 +7,9 @@
 #include "auth_window.h"
 #include "reg_window.h"
 
-//#include <QMessageBox>
-
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
-
-struct Client
-{
-    std::string login;
-    std::string password;
-    std::string name;
-};
 
 class MainWindow : public QMainWindow
 {
@@ -42,6 +33,7 @@ private:
     QByteArray Data;
 
     void sendToServer(QString str);
+    void messageFromServerProcessing(QString str);
     qint16 nextBlockSize;
     auth_window ui_Auth;
     reg_window ui_Reg;
@@ -49,6 +41,8 @@ private:
     QString m_username;
     QString m_userpass;
     QString m_userlogin;
+
+    //QString err_message;
 
     bool m_loginSuccesfull;
 

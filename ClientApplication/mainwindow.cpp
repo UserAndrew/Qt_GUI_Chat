@@ -3,6 +3,7 @@
 #include "auth_window.h"
 #include "reg_window.h"
 #include <QtDebug>
+#include <QMessageBox>
 
 QString getSeparator()
 {
@@ -15,6 +16,14 @@ struct FlagsForServer
     const QString login = "login";
     const QString message = "message";
 } serverFlags;
+
+struct SignalsFromServer
+{
+    const QString error{"error"};
+    const QString message{"message"};
+    const QString regOK{"registration ok"};
+    const QString authOK{"authentication ok"};
+} signals_from_server;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -69,7 +78,7 @@ void MainWindow::registerUser()
     m_userlogin = ui_Reg.getLogin();
     m_userpass = ui_Reg.getPass();
     QString reg_string = serverFlags.create+getSeparator()+
-            m_username+getSeparator()+m_userlogin+getSeparator()+m_userpass;
+            m_userlogin+getSeparator()+m_username+getSeparator()+m_userpass;
     sendToServer(reg_string);
 }
 
@@ -88,6 +97,29 @@ void MainWindow::sendToServer(QString str)
     out << qint16(Data.size() - sizeof(qint16));
     socket->write(Data);
     ui->lineEdit->clear();
+}
+
+void MainWindow::messageFromServerProcessing(QString str)
+{
+    QStringList list = str.split("|");
+    if(list[0] == signals_from_server.error)
+    {
+        QMessageBox::warning(this, "Warning!", list[1]);
+    }
+    else if(list[0] == signals_from_server.message)
+    {
+
+        //ui->textBrowser->append(list[1]);
+    }
+    else if(list[0] == signals_from_server.regOK)
+    {
+        ui_Reg.close();
+        ui_Auth.show();
+    }
+    else if(list[0] == signals_from_server.authOK)
+    {
+        ui_Auth.close();
+    }
 }
 
 void MainWindow::slotReadyRead()
@@ -116,7 +148,8 @@ void MainWindow::slotReadyRead()
             QString str;
             in >> str;
             nextBlockSize = 0;
-            ui->textBrowser->append(str);
+            messageFromServerProcessing(str);
+            //ui->textBrowser->append(str);
         }
     }
     else
