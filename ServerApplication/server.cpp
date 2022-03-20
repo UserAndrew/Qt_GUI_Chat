@@ -1,11 +1,18 @@
 #include "server.h"
 
+QString getSeparator()
+{
+    return "|";
+}
+
 struct AnswerToClient
 {
-    const QString login_exist{"This login already exist"};
-    const QString incorrect_login{"Incorrect login"};
-    const QString incorrect_pass{"Incorrect password"};
-};
+    const std::pair<QString, QString> login_exist{"error","This login already exist"};
+    const std::pair<QString, QString> incorrect_login{"error","Incorrect login"};
+    const std::pair<QString, QString> incorrect_pass{"error","Incorrect password"};
+    const QString reg_ok{"registration ok"};
+    const QString auth_ok{"authentication ok"};
+} answer_to_client;
 
 struct FlagsFromClient
 {
@@ -28,7 +35,7 @@ Server::Server()
     QFile file("users_data.txt");
     if(!file.open(QIODevice::ReadOnly))
     {
-
+        qWarning("Cannot open file for reading");
     }
     else
     {
@@ -43,30 +50,14 @@ Server::Server()
             user_data[list[0]] = datas;
         }
     }
-
     file.close();
-}
-
-Server::~Server()
-{
-    QTextStream out(stdout);
-    QString filename = "users_data.txt";
-    QFile file(filename);
-    QMap<QString, Client>::iterator it;
-    if(file.open(QIODevice::WriteOnly))
-    {
-        QTextStream out(&file);
-        for(it = user_data.begin(); it != user_data.end(); it++)
-        {
-            out<<it.key()<<"\t"<<it.value().name<<"\t"<<it.value().password<<endl;
-        }
-    }
-    else
-    {
-        qWarning("Could not open file");
-    }
-
+    /*file.open(QFile::WriteOnly|QFile::Truncate);
     file.close();
+    QMap<QString,Client>::iterator it = user_data.begin();
+    for(; it != user_data.end(); it++)
+    {
+        qDebug()<<it.key()<<"\t"<<it.value().name<<"\t"<<it.value().password<<endl;
+    }*/
 }
 
 void Server::incomingConnection(qintptr socketDescriptor)
@@ -142,9 +133,28 @@ void Server::sendToClient(QString str)
     }
 }
 
+void Server::writeUsersDataToFile(QStringList list)
+{
+    QTextStream out(stdout);
+    QString filename = "users_data.txt";
+    QFile file(filename);
+    if(file.open(QIODevice::Append | QIODevice::Text))
+    {
+        QTextStream out(&file);
+        out<<list[1]<<"\t"<<list[2]<<"\t"<<list[3]<<endl;
+    }
+    else
+    {
+        qWarning("Could not open file");
+    }
+
+    file.close();
+}
+
 void Server::messageFromClientProcessing(QString str)
 {
     Client data_client;
+    QString my_string;
     QStringList list = str.split("|");
     if(list[0] == client_flags.create)
     {
@@ -153,14 +163,40 @@ void Server::messageFromClientProcessing(QString str)
             data_client.name = list[2];
             data_client.password = list[3];
             user_data[list[1]] = data_client;
+            writeUsersDataToFile(list);
+            my_string = answer_to_client.reg_ok+getSeparator();
+        }
+        else
+        {
+            my_string = answer_to_client.incorrect_login.first+getSeparator()+
+                    answer_to_client.incorrect_login.second;
         }
     }
     else if(list[0] == client_flags.login)
     {
-
+        if(user_data.count(list[1]))
+        {
+            if(user_data[list[1]].password == list[2])
+            {
+                my_string = answer_to_client.reg_ok+getSeparator();
+            }
+            else
+            {
+                my_string = answer_to_client.incorrect_pass.first+getSeparator()+
+                        answer_to_client.incorrect_pass.second;
+            }
+        }
+        else
+        {
+            my_string = answer_to_client.incorrect_login.first+getSeparator()+
+                    answer_to_client.incorrect_login.second;
+        }
     }
     else if(list[0] == client_flags.message)
     {
 
     }
+
+    sendToClient(my_string);
 }
+

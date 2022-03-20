@@ -19,7 +19,7 @@ class Server : public QTcpServer
     Q_OBJECT
 public:
     Server();
-    ~Server();
+    ~Server(){};
     QTcpSocket* socket;
 
 private:
@@ -30,6 +30,7 @@ private:
     QMap<QString, QString> message_for_user;
     QMap<QString, Client> user_data;
     void messageFromClientProcessing(QString str);
+    void writeUsersDataToFile(QStringList);
 
 
 public slots:
