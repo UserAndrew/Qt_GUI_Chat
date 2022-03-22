@@ -10,6 +10,11 @@ QString getSeparator()
     return "|";
 }
 
+QString getTwoPoint()
+{
+    return ":";
+}
+
 struct FlagsForServer
 {
     const QString create = "create";
@@ -22,7 +27,7 @@ struct SignalsFromServer
     const QString error{"error"};
     const QString message{"message"};
     const QString regOK{"registration ok"};
-    const QString authOK{"authentication ok"};
+    const QString authOK{"authentification ok"};
 } signals_from_server;
 
 MainWindow::MainWindow(QWidget *parent)
@@ -70,6 +75,7 @@ void MainWindow::authorizeUser()
     QString auth_string = serverFlags.login+getSeparator()+
             m_username+getSeparator()+m_userpass;
     sendToServer(auth_string);
+    //setWindowTitle(m_username);
 }
 
 void MainWindow::registerUser()
@@ -108,8 +114,8 @@ void MainWindow::messageFromServerProcessing(QString str)
     }
     else if(list[0] == signals_from_server.message)
     {
-
-        //ui->textBrowser->append(list[1]);
+        QString message_to_textBrowser = list[1]+getTwoPoint()+list[2];
+        ui->textBrowser->append(message_to_textBrowser);
     }
     else if(list[0] == signals_from_server.regOK)
     {
@@ -119,6 +125,8 @@ void MainWindow::messageFromServerProcessing(QString str)
     else if(list[0] == signals_from_server.authOK)
     {
         ui_Auth.close();
+        //setWindowTitle(list[1]);
+        show();
     }
 }
 
@@ -160,10 +168,14 @@ void MainWindow::slotReadyRead()
 
 void MainWindow::on_pushButton_2_clicked()
 {
-    sendToServer(ui->lineEdit->text());
+    QString new_message = ui->lineEdit->text();
+    QString full_message = serverFlags.message+getSeparator()+new_message;
+    sendToServer(full_message);
 }
 
 void MainWindow::on_lineEdit_returnPressed()
 {
-    sendToServer(ui->lineEdit->text());
+    QString new_message = ui->lineEdit->text();
+    QString full_message = serverFlags.message+getSeparator()+new_message;
+    sendToServer(full_message);
 }
