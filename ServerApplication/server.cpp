@@ -11,7 +11,8 @@ struct AnswerToClient
     const std::pair<QString, QString> incorrect_login{"error","Incorrect login"};
     const std::pair<QString, QString> incorrect_pass{"error","Incorrect password"};
     const QString reg_ok{"registration ok"};
-    const QString auth_ok{"authentication ok"};
+    const QString auth_ok{"authentification ok"};
+    const QString message_to_clients{"message"};
 } answer_to_client;
 
 struct FlagsFromClient
@@ -178,7 +179,11 @@ void Server::messageFromClientProcessing(QString str)
         {
             if(user_data[list[1]].password == list[2])
             {
-                my_string = answer_to_client.reg_ok+getSeparator();
+                qintptr abc = socketDescriptor();
+                my_string = answer_to_client.auth_ok+getSeparator();//+user_data[list[1]].name;
+                socket_descriptor_and_name.insert(abc, user_data[list[1]].name);
+                qDebug()<<socket_descriptor_and_name.values()<<'\t'<<
+                          socket_descriptor_and_name.keys();
             }
             else
             {
@@ -194,7 +199,17 @@ void Server::messageFromClientProcessing(QString str)
     }
     else if(list[0] == client_flags.message)
     {
-
+        QString name;
+        QMap<qintptr, QString>::iterator it = socket_descriptor_and_name.begin();
+        for(; it != socket_descriptor_and_name.end(); it++)
+        {
+            if(it.key() == socketDescriptor())
+            {
+                name = it.value();
+            }
+        }
+        my_string = answer_to_client.message_to_clients+getSeparator()+
+                name+getSeparator()+list[1];
     }
 
     sendToClient(my_string);

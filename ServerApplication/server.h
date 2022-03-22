@@ -27,6 +27,7 @@ private:
     QByteArray Data;
     void sendToClient(QString str);
     qint16 nextBlockSize;
+    QMap<qintptr, QString> socket_descriptor_and_name;
     QMap<QString, QString> message_for_user;
     QMap<QString, Client> user_data;
     void messageFromClientProcessing(QString str);
