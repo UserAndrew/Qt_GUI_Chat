@@ -64,6 +64,7 @@ Server::Server()
 void Server::incomingConnection(qintptr socketDescriptor)
 {
     qDebug() << socketDescriptor << " Connecting... ";
+    this_socketDescritor = socketDescriptor;
     socket = new QTcpSocket;
     socket->setSocketDescriptor(socketDescriptor);
     connect(socket, &QTcpSocket::readyRead, this, &Server::slotReadyRead);
@@ -179,9 +180,9 @@ void Server::messageFromClientProcessing(QString str)
         {
             if(user_data[list[1]].password == list[2])
             {
-                qintptr abc = socketDescriptor();
+                //qintptr abc = socketDescriptor();
                 my_string = answer_to_client.auth_ok+getSeparator();//+user_data[list[1]].name;
-                socket_descriptor_and_name.insert(abc, user_data[list[1]].name);
+                socket_descriptor_and_name.insert(this_socketDescritor, user_data[list[1]].name);
                 qDebug()<<socket_descriptor_and_name.values()<<'\t'<<
                           socket_descriptor_and_name.keys();
             }
@@ -203,7 +204,7 @@ void Server::messageFromClientProcessing(QString str)
         QMap<qintptr, QString>::iterator it = socket_descriptor_and_name.begin();
         for(; it != socket_descriptor_and_name.end(); it++)
         {
-            if(it.key() == socketDescriptor())
+            if(it.key() == this_socketDescritor)
             {
                 name = it.value();
             }

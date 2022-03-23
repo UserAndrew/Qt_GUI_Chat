@@ -23,6 +23,7 @@ public:
     QTcpSocket* socket;
 
 private:
+    qintptr this_socketDescritor;
     QVector<QTcpSocket*> Sockets;
     QByteArray Data;
     void sendToClient(QString str);
