@@ -5,6 +5,11 @@ QString getSeparator()
     return "|";
 }
 
+QString getYou()
+{
+    return "You";
+}
+
 struct AnswerToClient
 {
     const std::pair<QString, QString> login_exist{"error","This login already exist"};
@@ -189,21 +194,22 @@ void Server::messageFromClientProcessingAndSending(QString str)
     else if(list[0] == client_flags.message)
     {
         QString name;
-        QMap<qintptr, QString>::iterator it = socket_descriptor_and_name.begin();
-        for(; it != socket_descriptor_and_name.end(); it++)
-        {
-            if(it.key() == socket->socketDescriptor())
-            {
-                name = it.value();
-            }
-        }
-        my_string = answer_to_client.message_to_clients+getSeparator()+
-                name+getSeparator()+list[1];
-        preparingDataToSend(my_string);
+
         for(int i = 0; i < Sockets.size(); i++)
+        {
+            if(Sockets[i]->socketDescriptor() == socket->socketDescriptor())
             {
-                Sockets[i]->write(Data);
+                name = getYou();
             }
+            else
+            {
+                name = socket_descriptor_and_name[socket->socketDescriptor()];
+            }
+            my_string = answer_to_client.message_to_clients+getSeparator()+
+                            name+getSeparator()+list[1];
+            preparingDataToSend(my_string);
+            Sockets[i]->write(Data);
+        }
         return;
     }
 
