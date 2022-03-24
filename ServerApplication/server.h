@@ -26,17 +26,18 @@ private:
     qintptr this_socketDescritor;
     QVector<QTcpSocket*> Sockets;
     QByteArray Data;
-    void sendToClient(QString str);
+    void sendToClient(QString);
     qint16 nextBlockSize;
     QMap<qintptr, QString> socket_descriptor_and_name;
     QMap<QString, QString> message_for_user;
     QMap<QString, Client> user_data;
-    void messageFromClientProcessing(QString str);
+    void messageFromClientProcessing(QString);
     void writeUsersDataToFile(QStringList);
+    void preparingDataToSend(QString);
 
 
 public slots:
-    void incomingConnection(qintptr socketDescriptor) override;
+    void incomingConnection(qintptr) override;
     void slotReadyRead();
 };
 

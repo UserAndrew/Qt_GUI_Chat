@@ -120,7 +120,7 @@ void Server::slotReadyRead()
     }
 }
 
-void Server::sendToClient(QString str)
+void Server::preparingDataToSend(QString str)
 {
     Data.clear();
     QDataStream out(&Data, QIODevice::WriteOnly);
@@ -128,11 +128,16 @@ void Server::sendToClient(QString str)
     out << qint16(0) << str;
     out.device()->seek(0);
     out << qint16(Data.size() - sizeof(qint16));
-    //socket->write(Data);
-    for(int i = 0; i < Sockets.size(); i++)
+}
+
+void Server::sendToClient(QString str)
+{
+    preparingDataToSend(str);
+    socket->write(Data);
+    /*for(int i = 0; i < Sockets.size(); i++)
     {
         Sockets[i]->write(Data);
-    }
+    }*/
 }
 
 void Server::writeUsersDataToFile(QStringList list)
@@ -180,8 +185,7 @@ void Server::messageFromClientProcessing(QString str)
         {
             if(user_data[list[1]].password == list[2])
             {
-                //qintptr abc = socketDescriptor();
-                my_string = answer_to_client.auth_ok+getSeparator();//+user_data[list[1]].name;
+                my_string = answer_to_client.auth_ok+getSeparator()+user_data[list[1]].name;
                 socket_descriptor_and_name.insert(this_socketDescritor, user_data[list[1]].name);
                 qDebug()<<socket_descriptor_and_name.values()<<'\t'<<
                           socket_descriptor_and_name.keys();
@@ -204,13 +208,19 @@ void Server::messageFromClientProcessing(QString str)
         QMap<qintptr, QString>::iterator it = socket_descriptor_and_name.begin();
         for(; it != socket_descriptor_and_name.end(); it++)
         {
-            if(it.key() == this_socketDescritor)
+            if(it.key() == socket->socketDescriptor())
             {
-                name = it.value();
+                name = "You";//it.value();
             }
         }
         my_string = answer_to_client.message_to_clients+getSeparator()+
                 name+getSeparator()+list[1];
+        preparingDataToSend(my_string);
+        for(int i = 0; i < Sockets.size(); i++)
+            {
+                Sockets[i]->write(Data);
+            }
+        return;
     }
 
     sendToClient(my_string);
