@@ -51,14 +51,8 @@ Server::Server()
             user_data[list[0]] = datas;
         }
     }
+
     file.close();
-    /*file.open(QFile::WriteOnly|QFile::Truncate);
-    file.close();
-    QMap<QString,Client>::iterator it = user_data.begin();
-    for(; it != user_data.end(); it++)
-    {
-        qDebug()<<it.key()<<"\t"<<it.value().name<<"\t"<<it.value().password<<endl;
-    }*/
 }
 
 void Server::incomingConnection(qintptr socketDescriptor)
@@ -82,11 +76,6 @@ void Server::slotReadyRead()
     in.setVersion(QDataStream::Qt_5_9);
     if(in.status() == QDataStream::Ok)
     {
-        /*qDebug() << "Read...";
-        QString str;
-        in >> str;
-        qDebug() << str;
-        sendToClient(str);*/
         for(;;)
         {
             if(nextBlockSize == 0)
@@ -109,8 +98,7 @@ void Server::slotReadyRead()
             in >> str;
             qDebug() << str;
             nextBlockSize = 0;
-            messageFromClientProcessing(str);
-            //sendToClient(str);
+            messageFromClientProcessingAndSending(str);
             break;
         }
     }
@@ -134,10 +122,6 @@ void Server::sendToClient(QString str)
 {
     preparingDataToSend(str);
     socket->write(Data);
-    /*for(int i = 0; i < Sockets.size(); i++)
-    {
-        Sockets[i]->write(Data);
-    }*/
 }
 
 void Server::writeUsersDataToFile(QStringList list)
@@ -158,7 +142,7 @@ void Server::writeUsersDataToFile(QStringList list)
     file.close();
 }
 
-void Server::messageFromClientProcessing(QString str)
+void Server::messageFromClientProcessingAndSending(QString str)
 {
     Client data_client;
     QString my_string;
@@ -210,7 +194,7 @@ void Server::messageFromClientProcessing(QString str)
         {
             if(it.key() == socket->socketDescriptor())
             {
-                name = "You";//it.value();
+                name = it.value();
             }
         }
         my_string = answer_to_client.message_to_clients+getSeparator()+
