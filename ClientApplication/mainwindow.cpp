@@ -125,7 +125,7 @@ void MainWindow::messageFromServerProcessing(QString str)
     else if(list[0] == signals_from_server.authOK)
     {
         ui_Auth.close();
-        //setWindowTitle(list[1]);
+        setWindowTitle(list[1]);
         show();
     }
 }
