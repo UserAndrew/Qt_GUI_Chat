@@ -131,13 +131,15 @@ void Server::sendToClient(QString str)
 
 void Server::writeUsersDataToFile(QStringList list)
 {
+    QString md5_string = QCryptographicHash::hash(list[3].toLatin1(),
+            QCryptographicHash::Md5).toHex();
     QTextStream out(stdout);
     QString filename = "users_data.txt";
     QFile file(filename);
     if(file.open(QIODevice::Append | QIODevice::Text))
     {
         QTextStream out(&file);
-        out<<list[1]<<"\t"<<list[2]<<"\t"<<list[3]<<endl;
+        out<<list[1]<<"\t"<<list[2]<<"\t"<<md5_string<<"\t"<<list[3]<<endl;
     }
     else
     {

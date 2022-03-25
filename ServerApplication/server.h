@@ -7,6 +7,7 @@
 #include <QVector>
 #include <QFile>
 #include <QMap>
+#include <QCryptographicHash>
 
 struct Client
 {
