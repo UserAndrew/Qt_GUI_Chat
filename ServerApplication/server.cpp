@@ -164,8 +164,8 @@ void Server::messageFromClientProcessingAndSending(QString str)
         }
         else
         {
-            my_string = answer_to_client.incorrect_login.first+getSeparator()+
-                    answer_to_client.incorrect_login.second;
+            my_string = answer_to_client.login_exist.first+getSeparator()+
+                    answer_to_client.login_exist.second;
         }
     }
     else if(list[0] == client_flags.login)
