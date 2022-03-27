@@ -27,6 +27,7 @@ private:
     qintptr this_socketDescritor;
     QVector<QTcpSocket*> Sockets;
     QByteArray Data;
+    QVector<QString> messages_history;
     void sendToClient(QString);
     qint16 nextBlockSize;
     QMap<qintptr, QString> socket_descriptor_and_name;
@@ -35,7 +36,8 @@ private:
     void messageFromClientProcessingAndSending(QString);
     void writeUsersDataToFile(QStringList);
     void preparingDataToSend(QString);
-    void writeMessageHistory(QString);
+    void writeMessagesHistory(QString);
+    void readMessagesHistory();
     QString passwordEncryption(QString);
 
 

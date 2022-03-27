@@ -23,6 +23,7 @@ struct AnswerToClient
     const QString reg_ok{"registration ok"};
     const QString auth_ok{"authentification ok"};
     const QString message_to_clients{"message"};
+    const QString messages_history{"messages history"};
 } answer_to_client;
 
 struct FlagsFromClient
@@ -128,15 +129,36 @@ void Server::preparingDataToSend(QString str)
     out << qint16(Data.size() - sizeof(qint16));
 }
 
-void Server::writeMessageHistory(QString message)
+void Server::writeMessagesHistory(QString message)
 {
     QTextStream out(stdout);
-    QString filename = "message_history.txt";
+    QString filename = "messages_history.txt";
     QFile file(filename);
     if(file.open(QIODevice::Append | QIODevice::Text))
     {
         QTextStream out(&file);
         out<<message<<endl;
+    }
+
+    file.close();
+}
+
+void Server::readMessagesHistory()
+{
+    QFile file("messages_history.txt");
+    if(!file.open(QIODevice::ReadOnly))
+    {
+        qWarning("Cannot open file for reading");
+    }
+    else
+    {
+        QTextStream in(&file);
+        while(!in.atEnd())
+        {
+            QString line = in.readLine();
+            QStringList list = line.split("|");
+            messages_history.push_back(list[0]);
+        }
     }
 
     file.close();
@@ -206,6 +228,12 @@ void Server::messageFromClientProcessingAndSending(QString str)
                 socket_descriptor_and_name.insert(this_socketDescritor, user_data[list[1]].name);
                 qDebug()<<socket_descriptor_and_name.values()<<'\t'<<
                           socket_descriptor_and_name.keys();
+                readMessagesHistory();
+                for(auto item : messages_history)
+                {
+                    sendToClient(answer_to_client.messages_history+getSeparator()+
+                                 item);
+                }
             }
             else
             {
@@ -221,7 +249,7 @@ void Server::messageFromClientProcessingAndSending(QString str)
     }
     else if(list[0] == client_flags.message)
     {
-        writeMessageHistory(socket_descriptor_and_name[socket->socketDescriptor()]+
+        writeMessagesHistory(socket_descriptor_and_name[socket->socketDescriptor()]+
                 getTwoPoint()+list[1]+getSeparator());
 
         QString name;
