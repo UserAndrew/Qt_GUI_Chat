@@ -131,6 +131,8 @@ void MainWindow::messageFromServerProcessing(QString str)
         {
             ui->textBrowser->append(item);
         }
+        messages_history_from_server.clear();
+        messages_history_from_server.squeeze();
     }
     else if(list[0] == signals_from_server.messages_history)
     {
