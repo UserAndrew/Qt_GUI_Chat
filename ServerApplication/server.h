@@ -35,6 +35,8 @@ private:
     void messageFromClientProcessingAndSending(QString);
     void writeUsersDataToFile(QStringList);
     void preparingDataToSend(QString);
+    void writeMessageHistory(QString);
+    QString passwordEncryption(QString);
 
 
 public slots:

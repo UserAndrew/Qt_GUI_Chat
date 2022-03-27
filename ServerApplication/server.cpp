@@ -10,6 +10,11 @@ QString getYou()
     return "You";
 }
 
+QString getTwoPoint()
+{
+    return ":";
+}
+
 struct AnswerToClient
 {
     const std::pair<QString, QString> login_exist{"error","This login already exist"};
@@ -123,6 +128,27 @@ void Server::preparingDataToSend(QString str)
     out << qint16(Data.size() - sizeof(qint16));
 }
 
+void Server::writeMessageHistory(QString message)
+{
+    QTextStream out(stdout);
+    QString filename = "message_history.txt";
+    QFile file(filename);
+    if(file.open(QIODevice::Append | QIODevice::Text))
+    {
+        QTextStream out(&file);
+        out<<message<<endl;
+    }
+
+    file.close();
+}
+
+QString Server::passwordEncryption(QString passw)
+{
+    QString md5_string = QCryptographicHash::hash(passw.toLatin1(),
+            QCryptographicHash::Md5).toHex();
+    return md5_string;
+}
+
 void Server::sendToClient(QString str)
 {
     preparingDataToSend(str);
@@ -131,15 +157,14 @@ void Server::sendToClient(QString str)
 
 void Server::writeUsersDataToFile(QStringList list)
 {
-    QString md5_string = QCryptographicHash::hash(list[3].toLatin1(),
-            QCryptographicHash::Md5).toHex();
+    QString encrypt_pass = passwordEncryption(list[3]);
     QTextStream out(stdout);
     QString filename = "users_data.txt";
     QFile file(filename);
     if(file.open(QIODevice::Append | QIODevice::Text))
     {
         QTextStream out(&file);
-        out<<list[1]<<"\t"<<list[2]<<"\t"<<md5_string<<"\t"<<list[3]<<endl;
+        out<<list[1]<<"\t"<<list[2]<<"\t"<<encrypt_pass<<"\t"<<list[3]<<endl;
     }
     else
     {
@@ -159,7 +184,7 @@ void Server::messageFromClientProcessingAndSending(QString str)
         if(!user_data.count(list[1]))
         {
             data_client.name = list[2];
-            data_client.password = list[3];
+            data_client.password = passwordEncryption(list[3]);
             user_data[list[1]] = data_client;
             writeUsersDataToFile(list);
             my_string = answer_to_client.reg_ok+getSeparator();
@@ -174,7 +199,8 @@ void Server::messageFromClientProcessingAndSending(QString str)
     {
         if(user_data.count(list[1]))
         {
-            if(user_data[list[1]].password == list[2])
+            QString this_pass = passwordEncryption(list[2]);
+            if(user_data[list[1]].password == this_pass)
             {
                 my_string = answer_to_client.auth_ok+getSeparator()+user_data[list[1]].name;
                 socket_descriptor_and_name.insert(this_socketDescritor, user_data[list[1]].name);
@@ -195,8 +221,10 @@ void Server::messageFromClientProcessingAndSending(QString str)
     }
     else if(list[0] == client_flags.message)
     {
-        QString name;
+        writeMessageHistory(socket_descriptor_and_name[socket->socketDescriptor()]+
+                getTwoPoint()+list[1]+getSeparator());
 
+        QString name;
         for(int i = 0; i < Sockets.size(); i++)
         {
             if(Sockets[i]->socketDescriptor() == socket->socketDescriptor())
