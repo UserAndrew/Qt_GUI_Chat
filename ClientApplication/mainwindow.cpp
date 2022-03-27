@@ -28,6 +28,7 @@ struct SignalsFromServer
     const QString message{"message"};
     const QString regOK{"registration ok"};
     const QString authOK{"authentification ok"};
+    const QString messages_history{"messages history"};
 } signals_from_server;
 
 MainWindow::MainWindow(QWidget *parent)
@@ -75,7 +76,6 @@ void MainWindow::authorizeUser()
     QString auth_string = serverFlags.login+getSeparator()+
             m_username+getSeparator()+m_userpass;
     sendToServer(auth_string);
-    //setWindowTitle(m_username);
 }
 
 void MainWindow::registerUser()
@@ -127,6 +127,14 @@ void MainWindow::messageFromServerProcessing(QString str)
         ui_Auth.close();
         setWindowTitle(list[1]);
         show();
+        for (auto item : messages_history_from_server)
+        {
+            ui->textBrowser->append(item);
+        }
+    }
+    else if(list[0] == signals_from_server.messages_history)
+    {
+        messages_history_from_server.push_back(list[1]);
     }
 }
 

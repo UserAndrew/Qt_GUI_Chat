@@ -42,7 +42,7 @@ private:
     QString m_userpass;
     QString m_userlogin;
 
-    //QString err_message;
+    QVector<QString> messages_history_from_server;
 
     bool m_loginSuccesfull;
 
