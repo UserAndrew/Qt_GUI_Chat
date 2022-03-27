@@ -234,6 +234,8 @@ void Server::messageFromClientProcessingAndSending(QString str)
                     sendToClient(answer_to_client.messages_history+getSeparator()+
                                  item);
                 }
+                messages_history.clear();
+                messages_history.squeeze();
             }
             else
             {
