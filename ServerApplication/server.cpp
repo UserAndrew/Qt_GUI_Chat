@@ -1,19 +1,15 @@
 #include "server.h"
 
-QString getSeparator()
-{
-    return "|";
-}
-
 QString getYou()
 {
     return "You";
 }
 
-QString getTwoPoint()
+struct Separator
 {
-    return ":";
-}
+    const QString pipeline{"|"};
+    const QString two_point{":"};
+} separator;
 
 struct AnswerToClient
 {
@@ -155,9 +151,19 @@ void Server::readMessagesHistory()
         QTextStream in(&file);
         while(!in.atEnd())
         {
+            QString name;
             QString line = in.readLine();
-            QStringList list = line.split("|");
-            messages_history.push_back(list[0]);
+            QStringList list = line.split(separator.pipeline);
+            qintptr this_socket_Descriptor = socket->socketDescriptor();
+            if(list[0] == socket_descriptor_login_and_name[this_socket_Descriptor].login)
+            {
+                name = getYou()+separator.two_point;
+            }
+            else
+            {
+                name = list[1]+separator.two_point;
+            }
+            messages_history.insert(name, list[2]);
         }
     }
 
@@ -199,8 +205,9 @@ void Server::writeUsersDataToFile(QStringList list)
 void Server::messageFromClientProcessingAndSending(QString str)
 {
     Client data_client;
+    ClientId client_id;
     QString my_string;
-    QStringList list = str.split("|");
+    QStringList list = str.split(separator.pipeline);
     if(list[0] == client_flags.create)
     {
         if(!user_data.count(list[1]))
@@ -209,11 +216,11 @@ void Server::messageFromClientProcessingAndSending(QString str)
             data_client.password = passwordEncryption(list[3]);
             user_data[list[1]] = data_client;
             writeUsersDataToFile(list);
-            my_string = answer_to_client.reg_ok+getSeparator();
+            my_string = answer_to_client.reg_ok+separator.pipeline;
         }
         else
         {
-            my_string = answer_to_client.login_exist.first+getSeparator()+
+            my_string = answer_to_client.login_exist.first+separator.pipeline+
                     answer_to_client.login_exist.second;
         }
     }
@@ -224,35 +231,39 @@ void Server::messageFromClientProcessingAndSending(QString str)
             QString this_pass = passwordEncryption(list[2]);
             if(user_data[list[1]].password == this_pass)
             {
-                my_string = answer_to_client.auth_ok+getSeparator()+user_data[list[1]].name;
-                socket_descriptor_and_name.insert(this_socketDescritor, user_data[list[1]].name);
-                qDebug()<<socket_descriptor_and_name.values()<<'\t'<<
-                          socket_descriptor_and_name.keys();
+                my_string = answer_to_client.auth_ok+separator.pipeline+user_data[list[1]].name;
+                client_id.login = list[1];
+                client_id.name = user_data.value(list[1]).name;
+                socket_descriptor_login_and_name.insert(this_socketDescritor, client_id);
+                qDebug()<<socket_descriptor_login_and_name.values()<<'\t'<<
+                          socket_descriptor_login_and_name.keys();
                 readMessagesHistory();
-                for(auto item : messages_history)
+                QMap<QString,QString>::iterator it = messages_history.begin();
+                for(; it != messages_history.end(); it++)
                 {
-                    sendToClient(answer_to_client.messages_history+getSeparator()+
-                                 item);
+                    sendToClient(answer_to_client.messages_history+separator.pipeline+
+                                 it.key()+separator.two_point+it.value());
                 }
                 messages_history.clear();
-                messages_history.squeeze();
             }
             else
             {
-                my_string = answer_to_client.incorrect_pass.first+getSeparator()+
+                my_string = answer_to_client.incorrect_pass.first+separator.pipeline+
                         answer_to_client.incorrect_pass.second;
             }
         }
         else
         {
-            my_string = answer_to_client.incorrect_login.first+getSeparator()+
+            my_string = answer_to_client.incorrect_login.first+separator.pipeline+
                     answer_to_client.incorrect_login.second;
         }
     }
     else if(list[0] == client_flags.message)
     {
-        writeMessagesHistory(socket_descriptor_and_name[socket->socketDescriptor()]+
-                getTwoPoint()+list[1]+getSeparator());
+        QString login = socket_descriptor_login_and_name[socket->socketDescriptor()].login;
+        QString u_name = socket_descriptor_login_and_name[socket->socketDescriptor()].name;
+        writeMessagesHistory(login+separator.pipeline+u_name+separator.pipeline+
+                             list[1]+separator.pipeline);
 
         QString name;
         for(int i = 0; i < Sockets.size(); i++)
@@ -263,10 +274,10 @@ void Server::messageFromClientProcessingAndSending(QString str)
             }
             else
             {
-                name = socket_descriptor_and_name[socket->socketDescriptor()];
+                name = u_name;
             }
-            my_string = answer_to_client.message_to_clients+getSeparator()+
-                            name+getSeparator()+list[1];
+            my_string = answer_to_client.message_to_clients+separator.pipeline+
+                            name+separator.pipeline+list[1];
             preparingDataToSend(my_string);
             Sockets[i]->write(Data);
         }

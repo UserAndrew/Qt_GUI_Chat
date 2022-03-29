@@ -4,6 +4,7 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QDataStream>
+//#include <QTextStream>
 #include <QVector>
 #include <QFile>
 #include <QMap>
@@ -12,6 +13,12 @@
 struct Client
 {
     QString password;
+    QString name;
+};
+
+struct ClientId
+{
+    QString login;
     QString name;
 };
 
@@ -27,10 +34,10 @@ private:
     qintptr this_socketDescritor;
     QVector<QTcpSocket*> Sockets;
     QByteArray Data;
-    QVector<QString> messages_history;
+    QMap<QString, QString> messages_history;
     void sendToClient(QString);
     qint16 nextBlockSize;
-    QMap<qintptr, QString> socket_descriptor_and_name;
+    QMap<qintptr, ClientId> socket_descriptor_login_and_name;
     QMap<QString, QString> message_for_user;
     QMap<QString, Client> user_data;
     void messageFromClientProcessingAndSending(QString);
