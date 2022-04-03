@@ -8,6 +8,7 @@
 #include <QVector>
 #include <QFile>
 #include <QMap>
+#include <QMultiMap>
 #include <QCryptographicHash>
 
 struct Client
@@ -34,7 +35,7 @@ private:
     qintptr this_socketDescritor;
     QVector<QTcpSocket*> Sockets;
     QByteArray Data;
-    QMap<QString, QString> messages_history;
+    QVector<QString> messages_history;
     void sendToClient(QString);
     qint16 nextBlockSize;
     QMap<qintptr, ClientId> socket_descriptor_login_and_name;

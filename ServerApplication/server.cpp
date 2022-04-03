@@ -163,7 +163,7 @@ void Server::readMessagesHistory()
             {
                 name = list[1]+separator.two_point;
             }
-            messages_history.insert(name, list[2]);
+            messages_history.push_back(name+list[2]);
         }
     }
 
@@ -235,14 +235,13 @@ void Server::messageFromClientProcessingAndSending(QString str)
                 client_id.login = list[1];
                 client_id.name = user_data.value(list[1]).name;
                 socket_descriptor_login_and_name.insert(this_socketDescritor, client_id);
-                qDebug()<<socket_descriptor_login_and_name.values()<<'\t'<<
-                          socket_descriptor_login_and_name.keys();
+                /*qDebug()<<socket_descriptor_login_and_name.values()<<'\t'<<
+                          socket_descriptor_login_and_name.keys();*/
                 readMessagesHistory();
-                QMap<QString,QString>::iterator it = messages_history.begin();
-                for(; it != messages_history.end(); it++)
+                for(auto& item : messages_history)
                 {
                     sendToClient(answer_to_client.messages_history+separator.pipeline+
-                                 it.key()+separator.two_point+it.value());
+                                 item);
                 }
                 messages_history.clear();
             }
