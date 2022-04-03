@@ -148,22 +148,30 @@ void Server::readMessagesHistory()
     }
     else
     {
-        QTextStream in(&file);
-        while(!in.atEnd())
+        if(file.size() == 0)
         {
-            QString name;
-            QString line = in.readLine();
-            QStringList list = line.split(separator.pipeline);
-            qintptr this_socket_Descriptor = socket->socketDescriptor();
-            if(list[0] == socket_descriptor_login_and_name[this_socket_Descriptor].login)
+            file.close();
+            return;
+        }
+        else
+        {
+            QTextStream in(&file);
+            while(!in.atEnd())
             {
-                name = getYou()+separator.two_point;
+                QString name;
+                QString line = in.readLine();
+                QStringList list = line.split(separator.pipeline);
+                qintptr this_socket_Descriptor = socket->socketDescriptor();
+                if(list[0] == socket_descriptor_login_and_name[this_socket_Descriptor].login)
+                {
+                    name = getYou()+separator.two_point;
+                }
+                else
+                {
+                    name = list[1]+separator.two_point;
+                }
+                messages_history.push_back(name+list[2]);
             }
-            else
-            {
-                name = list[1]+separator.two_point;
-            }
-            messages_history.push_back(name+list[2]);
         }
     }
 

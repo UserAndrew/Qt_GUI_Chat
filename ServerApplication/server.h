@@ -4,11 +4,9 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QDataStream>
-//#include <QTextStream>
 #include <QVector>
 #include <QFile>
 #include <QMap>
-#include <QMultiMap>
 #include <QCryptographicHash>
 
 struct Client
