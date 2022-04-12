@@ -5,21 +5,18 @@
 #include <QtDebug>
 #include <QMessageBox>
 
-QString getSeparator()
+struct Separator
 {
-    return "|";
-}
-
-QString getTwoPoint()
-{
-    return ":";
-}
+    const QString pipeline{"|"};
+    const QString two_point{":"};
+} separator;
 
 struct FlagsForServer
 {
     const QString create = "create";
     const QString login = "login";
     const QString message = "message";
+    const QString participants = "request_participants";
 } serverFlags;
 
 struct SignalsFromServer
@@ -50,11 +47,12 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&ui_Reg, SIGNAL(destroyed()),
             &ui_Auth, SLOT(show()));
 
-    /*ui->setupUi(this);
-    socket = new QTcpSocket(this);
-    socket->connectToHost("127.0.0.1", 2000);*/
     connect(socket, &QTcpSocket::readyRead, this, &MainWindow::slotReadyRead);
     connect(socket, &QTcpSocket::disconnected, socket, &QTcpSocket::deleteLater);
+    connect(this, &MainWindow::request_participants, this,
+            &MainWindow::on_pushButton_select_interlocutor_clicked);
+    connect(this, &MainWindow::destroyed, this, &MainWindow::show);
+
     nextBlockSize = 0;
 }
 
@@ -73,8 +71,8 @@ void MainWindow::authorizeUser()
 {
     m_username = ui_Auth.getLogin();
     m_userpass = ui_Auth.getPass();
-    QString auth_string = serverFlags.login+getSeparator()+
-            m_username+getSeparator()+m_userpass;
+    QString auth_string = serverFlags.login+separator.pipeline+
+            m_username+separator.pipeline+m_userpass;
     sendToServer(auth_string);
 }
 
@@ -83,8 +81,8 @@ void MainWindow::registerUser()
     m_username = ui_Reg.getName();
     m_userlogin = ui_Reg.getLogin();
     m_userpass = ui_Reg.getPass();
-    QString reg_string = serverFlags.create+getSeparator()+
-            m_userlogin+getSeparator()+m_username+getSeparator()+m_userpass;
+    QString reg_string = serverFlags.create+separator.pipeline+
+            m_userlogin+separator.pipeline+m_username+separator.pipeline+m_userpass;
     sendToServer(reg_string);
 }
 
@@ -102,19 +100,19 @@ void MainWindow::sendToServer(QString str)
     out.device()->seek(0);
     out << qint16(Data.size() - sizeof(qint16));
     socket->write(Data);
-    ui->lineEdit->clear();
+    //ui->lineEdit->clear();
 }
 
 void MainWindow::messageFromServerProcessing(QString str)
 {
-    QStringList list = str.split("|");
+    QStringList list = str.split(separator.pipeline);
     if(list[0] == signals_from_server.error)
     {
         QMessageBox::warning(this, "Warning!", list[1]);
     }
     else if(list[0] == signals_from_server.message)
     {
-        QString message_to_textBrowser = list[1]+getTwoPoint()+list[2];
+        QString message_to_textBrowser = list[1]+separator.two_point+list[2];
         ui->textBrowser->append(message_to_textBrowser);
     }
     else if(list[0] == signals_from_server.regOK)
@@ -179,13 +177,21 @@ void MainWindow::slotReadyRead()
 void MainWindow::on_pushButton_2_clicked()
 {
     QString new_message = ui->lineEdit->text();
-    QString full_message = serverFlags.message+getSeparator()+new_message;
+    QString full_message = serverFlags.message+separator.pipeline+new_message;
     sendToServer(full_message);
+    ui->lineEdit->clear();
 }
 
 void MainWindow::on_lineEdit_returnPressed()
 {
     QString new_message = ui->lineEdit->text();
-    QString full_message = serverFlags.message+getSeparator()+new_message;
+    QString full_message = serverFlags.message+separator.pipeline+new_message;
+    sendToServer(full_message);
+    ui->lineEdit->clear();
+}
+
+void MainWindow::on_pushButton_select_interlocutor_clicked()
+{
+    QString full_message = serverFlags.participants+separator.pipeline;
     sendToServer(full_message);
 }

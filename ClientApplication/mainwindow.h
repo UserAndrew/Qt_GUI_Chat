@@ -20,12 +20,16 @@ public:
     ~MainWindow();
     void display();
 
+signals:
+    void request_participants();
+
 private slots:
     void on_pushButton_2_clicked();
     void on_lineEdit_returnPressed();
     void authorizeUser();
     void registerWindowShow();
     void registerUser();
+    void on_pushButton_select_interlocutor_clicked();
 
 private:
     Ui::MainWindow *ui;
